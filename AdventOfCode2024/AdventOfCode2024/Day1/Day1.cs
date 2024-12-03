@@ -11,7 +11,7 @@ namespace AOC
         public static int distance;
         public static int similarity;
 
-        public static void Test()
+        public static void Run()
         {
             Console.Write("Starting...");
             ReadInput();

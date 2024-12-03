@@ -5,8 +5,8 @@ class Program
 {
     static void Main()
     {
-        Day1.Test();
-      
+        //Day1.Run();
+        Day2.Run();
 
 
     }
