@@ -10,11 +10,11 @@ namespace AOC
 {
     class Day7
     {
-        public static int[] results;
-        public static List<int[]> inputs = new List<int[]>();
+        public static long[] results;
+        public static List<long[]> inputs = new List<long[]>();
 
-        public static List<int> resultsAfterCalc = new List<int>();
-        public static int answer;
+        public static List<long> resultsAfterCalc = new List<long>();
+        public static long answer;
 
         public static void Run()
         {
@@ -41,17 +41,10 @@ namespace AOC
                 Addition(inputs[i], 0, 0);
                 Console.WriteLine("Result: " + results[i]);
                 Console.WriteLine("Input: " + string.Join(" ", inputs[i]));
-                Console.WriteLine("It Has these possible results: ");
-                Console.WriteLine("");
-
-                foreach(int result in resultsAfterCalc)
-                {
-                    Console.WriteLine(result);
-                }
 
                 if (resultsAfterCalc.Contains(results[i]))
                 {
-                    Console.WriteLine("has a correct combination \n");
+                    Console.WriteLine("Of the "+ resultsAfterCalc.Count +" possible combinations there is a correct combination \n");
 
                     answer += results[i];
                     resultsAfterCalc.Clear();
@@ -59,27 +52,27 @@ namespace AOC
                 else
                 {
                     resultsAfterCalc.Clear();
-                    Console.WriteLine("does not have a correct combination \n");
+                    //Console.WriteLine("does not have a correct combination \n");
                 }
             }
             Console.WriteLine("The total calibration result is " + answer);
         }
-        public static void Addition(int[] number, int startIndex, int result)
+        public static void Addition(long[] number, int startIndex, long result)
         {
             result += number[startIndex];
             if (startIndex < number.Length - 1)
             {
                 Multiplication(number, startIndex + 1, result);
                 Addition(number, startIndex + 1, result);
+                JoiningNumbers(number, startIndex + 1, result); // for part 2
             }
             else
             {
                 resultsAfterCalc.Add(result);
-
             }
         }
 
-        public static void Multiplication(int[] number, int startIndex, int result)
+        public static void Multiplication(long[] number, int startIndex, long result)
         {
             if (startIndex == 0)
             {
@@ -91,6 +84,29 @@ namespace AOC
             {
                 Addition(number, startIndex + 1, result);
                 Multiplication(number, startIndex + 1, result);
+                JoiningNumbers(number, startIndex + 1, result); // for part 2
+            }
+            else
+            {
+                resultsAfterCalc.Add(result);
+            }
+        }
+
+        public static void JoiningNumbers(long[] number, int startIndex, long result)
+        {
+            long[] joinArray = new long[2];
+            joinArray[0] = result;
+            joinArray[1] = number[startIndex];
+
+            var temp = string.Join("", joinArray);
+
+            result = long.Parse(temp);
+
+            if (startIndex < number.Length - 1)
+            {
+                Addition(number, startIndex + 1, result);
+                Multiplication(number, startIndex + 1, result);
+                JoiningNumbers(number, startIndex + 1, result);
             }
             else
             {
@@ -105,23 +121,21 @@ namespace AOC
 
             if (sr != null)
             {
-                results = new int[sr.Length];
+                results = new long[sr.Length];
                 for (int i = 0; i < sr.Length; i++)
                 {
                     var inputsRaw = Regex.Matches(sr[i], @"(\d+)");
 
-                    results[i] = int.Parse(inputsRaw[0].ToString());
+                    results[i] = long.Parse(inputsRaw[0].ToString());
 
-                    int[] intArray = new int[inputsRaw.Count - 1];
+                    long[] intArray = new long[inputsRaw.Count - 1];
                     for (int j = 1; inputsRaw.Count > j; j++)
                     {
-                        intArray[j - 1] = int.Parse(inputsRaw[j].ToString());
+                        intArray[j - 1] = long.Parse(inputsRaw[j].ToString());
                     }
                     inputs.Add(intArray);
                 }
             }
         }
-
-
     }
 }
