@@ -1,5 +1,21 @@
 263 too low
 
+276 right
+
 277 too high
 
 303 too high
+
+part 2 ----
+
+578 too low
+
+876 wrong
+
+877 wrong
+
+991 is right
+
+1034 too high
+
+1055 too high
