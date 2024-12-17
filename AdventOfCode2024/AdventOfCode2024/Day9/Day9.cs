@@ -7,6 +7,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection.Emit;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace AOC
 {
@@ -47,6 +48,9 @@ namespace AOC
             SolvePart2();
 
 
+            //var input = File.ReadAllText("C:\\files\\Advent-Of-Code-2024\\AdventOfCode2024\\AdventOfCode2024\\Day9\\Input.txt").Trim();
+            //var part2 = Part2(input);
+            //Console.WriteLine($"Part2: {part2}");
         }
 
         public static void SolvePart2()
@@ -54,31 +58,111 @@ namespace AOC
             GetWholeFileBlock();
             ProcessFullBlock();
 
-            var diskAll = string.Join("", disk);
-
-
-            for (int i = 0; i < diskAll.Length; i++)
+            var fullDisk = "";
+            //foreach (FileData data in diskBlock)
+            //{
+            //    fullDisk += data.Data;
+            //}
+            long count = 0;
+            for (int i = 0; i < diskBlock.Count; i++)
             {
-                if (diskAll[i] != '.')
+                //if (fullDisk[i] != '.')
+                //{
+                //    Int128 mul = Int128.Parse(fullDisk[i].ToString()) * i;
+                //    answer += mul;
+                //}
+
+
+                if (diskBlock[i].Data.Contains('.'))
                 {
-                    Int128 mul = Int128.Parse(diskAll[i].ToString()) * i;
-                    answer += mul;
+                    var tempRegex = Regex.Matches(diskBlock[i].Data, @"(\.)");
+
+                    count += tempRegex.Count;
                 }
+
+                if (!diskBlock[i].Data.Contains('.'))
+                {
+                    var tempRegex = Regex.Matches(diskBlock[i].Data, @"(" + diskBlock[i].ID + @")");
+                    for (int x = 0; x < tempRegex.Count; x++)
+                    {
+                        Int128 mul = diskBlock[i].ID * count;
+                        answer += mul;
+                        count++;
+                    }
+                }
+
             }
+            //Console.WriteLine(fullDisk);
+            foreach (FileData data in diskBlock)
+            {
+                Console.Write(data.Data);
+            }
+            Console.WriteLine();
             Console.WriteLine("the total sum is: " + answer);
         }
 
-        public static void ProcessFullBlock()  // to do: fix the swap 
+        public static void ProcessFullBlock()
         {
 
             for (int i = diskBlock.Count - 1; i >= 0; i--)
             {
                 for (int x = 0; x < i - 1; x++)
                 {
-                    // swap blocks
+                    #region Attempt 3
+                    var tempRegex = Regex.Matches(diskBlock[i].Data, @"(" + diskBlock[i].ID + @")");
+
+                    if (diskBlock[x].Data.Length >= tempRegex.Count && diskBlock[x].Data.Contains('.') && !diskBlock[i].Data.Contains('.'))
+                    {
+                        var tempSpace = diskBlock[x];
+                        if (diskBlock[x].Data.Length == tempRegex.Count)
+                        {
+                            diskBlock[x] = diskBlock[i];
+                            diskBlock[i] = tempSpace;
+                            break;
+                        }
+                        else
+                        {
+
+                            int freeSpaceLeft = diskBlock[x].Data.Length - tempRegex.Count;
+                            int spaceMoved = diskBlock[x].Data.Length - freeSpaceLeft;
+                            var tempStringData = diskBlock[x].Data;
+                            tempStringData = tempStringData.Truncate(spaceMoved);
+
+                            FileData newSpaceEntry = new FileData();
+                            newSpaceEntry.Data = tempStringData;
+                            newSpaceEntry.ID = 0;
 
 
+                            diskBlock[x] = diskBlock[i];
+                            diskBlock[i] = newSpaceEntry;
 
+
+                            FileData newEntry = new FileData();
+                            newEntry.ID = 0;
+                            string newString = "";
+
+                            for (int y = 0; y < freeSpaceLeft; y++)
+                            {
+                                newString += '.';
+                            }
+
+                            if (diskBlock[x + 1].Data.Contains('.'))
+                            {
+                                var stringData = diskBlock[x + 1].Data;
+                                newString += stringData;
+                                newEntry.Data = newString;
+                                diskBlock[x + 1] = newEntry;
+
+                            }
+                            else
+                            {
+                                newEntry.Data = newString;
+                                diskBlock.Insert(x + 1, newEntry);
+                                i++;
+                            }
+                        }
+                    }
+                    #endregion
 
                     #region attempt 2
 
@@ -192,6 +276,11 @@ namespace AOC
                     #endregion
 
                 }
+                //foreach (FileData data in diskBlock)
+                //{
+                //    Console.Write(data.Data);
+                //}
+                //Console.WriteLine();
             }
         }
 
@@ -247,7 +336,10 @@ namespace AOC
                     newEmpty.Data = "";
                 }
                 diskBlock.Add(newData);
-                diskBlock.Add(newEmpty);
+                if (newEmpty.Data != "")
+                {
+                    diskBlock.Add(newEmpty);
+                }
                 //diskBlock.Add(newFile);
             }
             Console.WriteLine();
@@ -333,7 +425,7 @@ namespace AOC
 
         public static void ReadInput()
         {
-            var sr = File.ReadAllText("C:\\files\\Advent-Of-Code-2024\\AdventOfCode2024\\AdventOfCode2024\\Day9\\Sample.txt");
+            var sr = File.ReadAllText("C:\\files\\Advent-Of-Code-2024\\AdventOfCode2024\\AdventOfCode2024\\Day9\\Input.txt");
 
             Console.WriteLine("input: " + sr);
 
@@ -349,5 +441,89 @@ namespace AOC
                 }
             }
         }
+
+        private static long Part2(string input)
+        {
+            var freeBlocks = new List<FreeSpace>();
+            var files = new List<FileInfo>();
+            var startBlock = 0;
+            var fileID = 0;
+            for (var i = 0; i < input.Length; i += 2)
+            {
+                var fileSize = input[i] - '0';
+                var fileInfo = new FileInfo(startBlock, fileID++, fileSize);
+                files.Add(fileInfo);
+                startBlock += fileSize;
+
+                if (i < input.Length - 1)
+                {
+                    var length = input[i + 1] - '0';
+                    var freeSpace = new FreeSpace(startBlock, length);
+                    freeBlocks.Add(freeSpace);
+                    startBlock += length;
+                }
+            }
+
+            for (var i = files.Count - 1; i >= 0; i--)
+            {
+                var fileInfo = files[i];
+                var freeSpaceIndex = FindFreeSpace(freeBlocks, fileInfo);
+                if (freeSpaceIndex == -1) continue;
+                var freeSpace = freeBlocks[freeSpaceIndex];
+                fileInfo.StartBlock = freeSpace.StartBlock;
+                freeSpace.Allocate(fileInfo.FileSize);
+                if (freeSpace.Length is 0) freeBlocks.RemoveAt(freeSpaceIndex);
+            }
+
+            return files.Sum(fileInfo => fileInfo.CheckSum);
+        }
+        private static int FindFreeSpace(List<FreeSpace> freeBlocks, FileInfo fileInfo)
+        {
+            for (var i = 0; i < freeBlocks.Count; i++)
+            {
+                var freeSpace = freeBlocks[i];
+                if (freeSpace.StartBlock >= fileInfo.StartBlock) break;
+                if (freeSpace.Length >= fileInfo.FileSize) return i;
+            }
+            return -1;
+        }
+    }
+}
+public static class StringExt
+{
+    public static string Truncate(this string value, int maxLength)
+    {
+        if (string.IsNullOrEmpty(value)) return value;
+        return value.Length <= maxLength ? value : value.Substring(0, maxLength);
+    }
+}
+internal class FileInfo(int StartBlock, int FileID, int FileSize)
+{
+    public int StartBlock { get; set; } = StartBlock;
+    public int FileID { get; } = FileID;
+    public int FileSize { get; } = FileSize;
+
+    public long CheckSum
+    {
+        get
+        {
+            var checksum = 0L;
+            for (var i = 0; i < FileSize; i++)
+            {
+                checksum += FileID * (StartBlock + i);
+            }
+            return checksum;
+        }
+    }
+}
+internal class FreeSpace(int StartBlock, int Length)
+{
+    public int StartBlock { get; private set; } = StartBlock;
+    public int Length { get; private set; } = Length;
+
+    public void Allocate(int fileSize)
+    {
+        StartBlock += fileSize;
+        Length -= fileSize;
     }
 }
