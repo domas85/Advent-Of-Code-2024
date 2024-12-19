@@ -11,15 +11,17 @@ namespace AOC
     {
 
         public static List<string> stones = new List<string>();
+        public static Dictionary<string, Int128> resultingStones = new Dictionary<string, Int128>();
+        public static Dictionary<string, Int128> tempDic = new Dictionary<string, Int128>();
 
         public static void Run()
         {
             Console.Write("Starting... \n\n");
             ReadInput();
 
-            SolvePart1();
+            //SolvePart1();
 
-            //SolvePart2();
+            SolvePart2();
 
             Console.ReadLine();
 
@@ -28,97 +30,146 @@ namespace AOC
         public static void SolvePart2()
         {
             Console.WriteLine("initial stones: \n" + string.Join(" ", stones) + "\n");
-
-            for (int i = 0; i < 75; i++)
+            foreach (string ston in stones)
             {
-                for (int s = 0; s < stones.Count; s++)
-                {
+                resultingStones.Add(ston, 1);
+            }
 
+            foreach (KeyValuePair<string, Int128> entry in resultingStones)
+            {
+                tempDic[entry.Key] = entry.Value;
+            }
+
+            Console.WriteLine(string.Join(" ", resultingStones.ToArray()));
+
+            for (int i = 0; i < 100; i++)
+            {
+                var bro = CalculateStoneChange(resultingStones, tempDic);
+                foreach (KeyValuePair<string, Int128> entry in bro)
+                {
+                    resultingStones[entry.Key] = entry.Value;
+                }
+                foreach (KeyValuePair<string, Int128> entry in bro)
+                {
+                    tempDic[entry.Key] = entry.Value;
                 }
             }
             Console.WriteLine(string.Join(" ", stones));
 
-            Console.WriteLine("\n" + "The stone count is: " + stones.Count);
+            Int128 answer = 0;
+
+            foreach (KeyValuePair<string, Int128> entry in resultingStones)
+            {
+                Console.WriteLine("of stone: " + entry.Key + " there are: " + entry.Value);
+                answer += entry.Value;
+            }
+
+            Console.WriteLine("\n" + "The stone count is: " + answer);
         }
 
-        public static List<string> CalculateStoneChange(string stone, int blinks, List<string> result)
+        public static Dictionary<string, Int128> CalculateStoneChange(Dictionary<string, Int128> checkAllStonesDictionary, Dictionary<string, Int128> modifyAllStonesDictionary)
         {
-            // rule 1
-            if (stone == "0" && blinks > 0)
+
+
+            foreach (KeyValuePair<string, Int128> entry in checkAllStonesDictionary)
             {
-                stone = "1";
-                blinks--;
-                CalculateStoneChange(stone, blinks, result);
-            }
-            var stoneLenght = stone.Length;
+                if (entry.Value <= 0) continue;
 
-            // rule 2
-            if (stoneLenght % 2 == 0 && blinks > 0)
-            {
-                string firsthalf = stone.Substring(0, stoneLenght / 2);
-                var skipFirstHalf = stone.Skip(stoneLenght / 2).ToList();
-
-
-                for (int j = 0; j < skipFirstHalf.Count - 1; j++)
+                if (entry.Key == "0")
                 {
-                    if (skipFirstHalf[j] == '0')
+                    // rule 1
+                    if (checkAllStonesDictionary["0"] > 0)
                     {
-                        skipFirstHalf.RemoveAt(j);
-                        j--;
+                        modifyAllStonesDictionary["1"] += checkAllStonesDictionary["0"];
+                        modifyAllStonesDictionary["0"] = 0;
+
+                        continue;
+                    }
+                }
+
+                // rule 2
+                var stoneLenght = entry.Key.Length;
+
+                if (stoneLenght % 2 == 0)
+                {
+                    string firsthalf = entry.Key.Substring(0, stoneLenght / 2);
+                    var skipFirstHalf = entry.Key.Skip(stoneLenght / 2).ToList();
+
+                    for (int j = 0; j < skipFirstHalf.Count - 1; j++)
+                    {
+                        if (skipFirstHalf[j] == '0')
+                        {
+                            skipFirstHalf.RemoveAt(j);
+                            j--;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    var Secondhalf = string.Join("", skipFirstHalf);
+                    if (modifyAllStonesDictionary.ContainsKey(firsthalf))
+                    {
+                        modifyAllStonesDictionary[firsthalf] += entry.Value;
                     }
                     else
                     {
-                        break;
+                        modifyAllStonesDictionary[firsthalf] = entry.Value;
                     }
+
+                    if (modifyAllStonesDictionary.ContainsKey(Secondhalf))
+                    {
+                        modifyAllStonesDictionary[Secondhalf] += entry.Value;
+                    }
+                    else
+                    {
+                        modifyAllStonesDictionary[Secondhalf] = entry.Value;
+                    }
+
+                    modifyAllStonesDictionary[entry.Key] -= entry.Value;
+
+                    continue;
                 }
 
-                var Secondhalf = string.Join("", skipFirstHalf);
-                stone = firsthalf;
-                //stones.Insert(s + 1, Secondhalf);
-            }
 
-            //rule 3
-            //var newNum = long.Parse(stones[s]) * 2024;
-            //stones[s] = newNum.ToString();
-            return null;
-        }
-
-        public static Func<string, int> Memoize(Func<string, int> fn)
-        {
-            // We create the cache which we'll use to store the inputs and calculated results.
-            var memoCache = new Dictionary<string, int>();
-
-            return n =>
-            {
-                // We can check if we've already performed a calculation using the given input.
-                // If we have, we can simply return that result.
-                if (memoCache.ContainsKey(n))
+                //rule 3
+                var newNum = long.Parse(entry.Key) * 2024;
+                if (modifyAllStonesDictionary.ContainsKey(newNum.ToString()))
                 {
-                    return memoCache[n];
+                    modifyAllStonesDictionary[newNum.ToString()] += entry.Value;
                 }
-
-                // If we don't find the current input in our cache, we'll need to perform the calculation.
-                // We also need to make sure we store that input and result for future use.
-                var result = fn(n);
-                memoCache[n] = result;
-
-                return result;
-            };
-        }
-
-        // Our recursiveFibonacci function can remain the same.
-        public static int RecursiveFibonacci(int n)
-        {
-            if (n <= 1)
-            {
-                return n;
+                else
+                {
+                    modifyAllStonesDictionary[newNum.ToString()] = entry.Value;
+                }
+                modifyAllStonesDictionary[entry.Key] -= entry.Value;
             }
 
-            return RecursiveFibonacci(n - 1) + RecursiveFibonacci(n - 2);
+            return modifyAllStonesDictionary;
         }
 
+        //public static Func<string, int> Memoize(Func<string, int > fn)
+        //{
+        //    // We create the cache which we'll use to store the inputs and calculated results.
+        //    var memoCache = new Dictionary<string, int>();
 
+        //    return n =>
+        //    {
+        //        // We can check if we've already performed a calculation using the given input.
+        //        // If we have, we can simply return that result.
+        //        if (memoCache.ContainsKey(n))
+        //        {
+        //            return memoCache[n];
+        //        }
 
+        //        // If we don't find the current input in our cache, we'll need to perform the calculation.
+        //        // We also need to make sure we store that input and result for future use.
+        //        var result = fn(n);
+        //        memoCache[n] = result;
+
+        //        return result;
+        //    };
+        //}
 
         public static void SolvePart1()
         {
