@@ -37,7 +37,7 @@ namespace AOC
 
         public static void ReadInput()
         {
-            var sr = File.ReadAllLines("C:\\files\\Advent-Of-Code-2024\\AdventOfCode2024\\AdventOfCode2024\\Day12\\Input.txt");
+            var sr = File.ReadAllLines("C:\\files\\Advent-Of-Code-2024\\AdventOfCode2024\\AdventOfCode2024\\Day12\\Sample.txt");
 
             if (sr != null)
             {

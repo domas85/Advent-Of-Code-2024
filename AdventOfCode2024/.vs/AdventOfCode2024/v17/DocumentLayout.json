@@ -46,8 +46,7 @@
               "RelativeToolTip": "AdventOfCode2024\\Day12\\Input.txt",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAIsAAACMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
-              "WhenOpened": "2024-12-19T11:27:48.825Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-19T11:27:48.825Z"
             },
             {
               "$type": "Document",
@@ -59,8 +58,7 @@
               "RelativeToolTip": "AdventOfCode2024\\Day12\\FailedAttempts.txt",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
-              "WhenOpened": "2024-12-19T11:27:48.13Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-19T11:27:48.13Z"
             },
             {
               "$type": "Document",
@@ -83,7 +81,7 @@
               "RelativeDocumentMoniker": "AdventOfCode2024\\Day12\\Day12.cs",
               "ToolTip": "C:\\files\\Advent-Of-Code-2024\\AdventOfCode2024\\AdventOfCode2024\\Day12\\Day12.cs",
               "RelativeToolTip": "AdventOfCode2024\\Day12\\Day12.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABoAAAAAAAAAAADwvzUAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-19T11:25:41.197Z",
               "EditorCaption": ""
@@ -98,8 +96,7 @@
               "RelativeToolTip": "AdventOfCode2024\\Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAqwBIAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-02T13:41:12.272Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-02T13:41:12.272Z"
             }
           ]
         }
